@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bank.risk_engine.dtos.LoanApplicationResponseDTO;
 import com.bank.risk_engine.dtos.LoanRequestDTO;
 import com.bank.risk_engine.models.LoanApplication;
 import com.bank.risk_engine.services.LoanRiskService;
@@ -23,8 +24,9 @@ public class LoanApplicationController {
     }
 
     @PostMapping
-    public ResponseEntity<LoanApplication> submitLoanApplication(@Valid @RequestBody LoanRequestDTO requestDTO) {
-        LoanApplication processedApplication = riskService.evaluateLoanApplication(requestDTO);
+    public ResponseEntity<LoanApplicationResponseDTO> submitLoanApplication(
+            @Valid @RequestBody LoanRequestDTO requestDTO) {
+        LoanApplicationResponseDTO processedApplication = riskService.evaluateLoanApplication(requestDTO);
 
         return new ResponseEntity<>(processedApplication, HttpStatus.CREATED);
     }

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 
 import org.springframework.stereotype.Service;
 
+import com.bank.risk_engine.dtos.LoanApplicationResponseDTO;
 import com.bank.risk_engine.dtos.LoanRequestDTO;
 import com.bank.risk_engine.models.ApplicationStatus;
 import com.bank.risk_engine.models.LoanApplication;
@@ -21,7 +22,7 @@ public class LoanRiskService {
         this.repository = repository;
     }
 
-    public LoanApplication evaluateLoanApplication(LoanRequestDTO request) {
+    public LoanApplicationResponseDTO evaluateLoanApplication(LoanRequestDTO request) {
         LoanApplication application = new LoanApplication();
         application.setApplicantName(request.getApplicantName());
         application.setMonthlyIncome(request.getMonthlyIncome());
@@ -32,7 +33,7 @@ public class LoanRiskService {
         if (application.getCreditScore() < 600) {
             application.setStatus(ApplicationStatus.REJECTED);
             application.setRejectionReason("Credit score falls below minimum threshold of " + MINIMUM_CREDIT_SCORE);
-            return repository.save(application);
+            return saveAndMap(application);
         }
 
         BigDecimal debtToIncomeRatio = application
@@ -46,10 +47,24 @@ public class LoanRiskService {
             application.setRejectionReason("Debt-to-Income ratio (" + debtToIncomeRatio.multiply(new BigDecimal(100))
                     + "%) exceeds maximum limit of" + MAX_DEBT_TO_INCOME_RATIO.multiply(new BigDecimal(100)) + "%");
 
-            return repository.save(application);
+            return saveAndMap(application);
         }
 
         application.setStatus(ApplicationStatus.APPROVED);
-        return repository.save(application);
+        return saveAndMap(application);
+    }
+
+    private LoanApplicationResponseDTO saveAndMap(LoanApplication entity) {
+        LoanApplication savedEntity = repository.save(entity);
+
+        LoanApplicationResponseDTO dto = new LoanApplicationResponseDTO();
+        dto.setId(savedEntity.getId());
+        dto.setApplicantName(savedEntity.getApplicantName());
+        dto.setRequestedAmount(savedEntity.getRequestedAmount());
+        dto.setStatus(savedEntity.getStatus());
+        dto.setRejectionReason(savedEntity.getRejectionReason());
+        dto.setCreatedAt(savedEntity.getCreatedAt());
+
+        return dto;
     }
 }

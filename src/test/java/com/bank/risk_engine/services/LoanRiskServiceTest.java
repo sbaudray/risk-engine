@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.bank.risk_engine.dtos.LoanApplicationResponseDTO;
 import com.bank.risk_engine.dtos.LoanRequestDTO;
 import com.bank.risk_engine.models.ApplicationStatus;
 import com.bank.risk_engine.models.LoanApplication;
@@ -37,7 +38,7 @@ public class LoanRiskServiceTest {
         request.setMonthlyDebtPayments(new BigDecimal("1000"));
         request.setRequestedAmount(new BigDecimal("10000"));
 
-        LoanApplication result = riskService.evaluateLoanApplication(request);
+        LoanApplicationResponseDTO result = riskService.evaluateLoanApplication(request);
 
         assertEquals(ApplicationStatus.REJECTED, result.getStatus());
         assertNotNull(result.getRejectionReason());
